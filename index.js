@@ -11,9 +11,7 @@ app.get("/",(req,res)=>{
 });
 
 app.post("/sendmail",async(req,res)=>{
-    const {name,email,htmlcontent,subject} = req.body;
-    console.log(req.body);
-
+    const {name,email,htmlcontent,subject,ticket,textContent,invoice} = req.body;
 
     let transporter = nodemailer.createTransport({
         host: "smtp.gmail.com", 
@@ -26,17 +24,23 @@ app.post("/sendmail",async(req,res)=>{
     });
 
     let mailOptions = {
-        from: '"Ticket Booking" buvanesifet26@gmail.com', 
-        to: `${email}`,                  
-        subject: `Confirmation of Your Tickets`,                       
-        text:`Dear ${name},
-        Thank you for purchasing tickets! We are excited to have you join us for an unforgettable celebration at one of the most anticipated events of the year.
-        
-            Ticket Booking,
-            Customer Service Team
-            8072454199, buvanesifet26@gmail.com.
-        `                  
+        from: '"Ticket Booking" <buvanesifet26@gmail.com>',
+        to: email,
+        subject: subject || 'Confirmation of Your Tickets',
+        text: textContent || `Dear ${name},\nThank you for purchasing tickets! We are excited to have you join us for an unforgettable celebration at one of the most anticipated events of the year.\n\nTicket Booking,\nCustomer Service Team\n8072454199, buvanesifet26@gmail.com.`,
+        html: htmlcontent || '',
+        attachments: [
+            {
+                filename: 'ticket.jpg',
+                path: ticket // URL of the ticket image
+            },
+            {
+                filename: 'invoice.jpg',
+                path: invoice // URL of the invoice image
+            }
+        ]
     };
+
     try {
         let info = await transporter.sendMail(mailOptions);
         res.sendStatus(200);
